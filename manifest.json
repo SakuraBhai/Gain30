@@ -1,0 +1,54 @@
+{
+  "name": "GAIN30 — 30-Day Weight Gain Tracker",
+  "short_name": "GAIN30",
+  "description": "Personal 30-day weight gain tracker (46 kg to 50 kg). Track daily calories, protein, water, workouts, and weight completely offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070b09",
+  "theme_color": "#10b981",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Log Food & Macros",
+      "short_name": "Food",
+      "description": "Check off today's meals and high-calorie foods",
+      "url": "./index.html?tab=food",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Log Weight",
+      "short_name": "Weight",
+      "description": "Record today's body weight",
+      "url": "./index.html?tab=weight",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

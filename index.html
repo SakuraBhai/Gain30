@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#070b09" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GAIN30" />
+  <meta name="description" content="GAIN30 — Personal 30-Day Weight Gain Tracker (46 kg to 50 kg). Offline-first mobile PWA." />
+  <title>GAIN30 — 30-Day Weight Gain Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="28" height="28">
+            <rect width="36" height="36" rx="9" fill="#0d231a" stroke="#10b981" stroke-width="1.5" />
+            <rect x="8" y="19" width="4" height="9" rx="1.5" fill="#10b981" />
+            <rect x="16" y="14" width="4" height="14" rx="1.5" fill="#22c55e" />
+            <rect x="24" y="9" width="4" height="19" rx="1.5" fill="#4ade80" />
+            <path d="M8 14 L17 8 L21 11 L28 5" fill="none" stroke="#86efac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title-row">
+            <h1 class="brand-title">GAIN<span>30</span></h1>
+            <span class="save-badge" id="saveStatusBadge" title="All data saved to LocalStorage">
+              <span class="save-dot"></span> Saved
+            </span>
+          </div>
+          <p class="brand-subtitle" id="headerGoalSubtitle">46.0 kg → 50.0 kg • 30 Days</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="install-btn hidden" id="installPwaBtn" title="Install GAIN30 App">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+          </svg>
+          <span>Install</span>
+        </button>
+        <button type="button" class="icon-btn" id="openSettingsBtn" aria-label="Backup & Goal Settings" title="Backup, Export/Import & Settings">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Active Day Switcher Bar -->
+    <div class="day-switcher-bar">
+      <button type="button" class="day-nav-btn" id="prevDayBtn" aria-label="Previous Day">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="day-switcher-center" id="daySwitcherCenter" role="button" tabindex="0" title="Tap to view 30-day calendar">
+        <div class="day-pill-main">
+          <span class="day-badge" id="activeDayBadge">DAY 1 / 30</span>
+          <span class="day-date-text" id="activeDayDateText">Today</span>
+        </div>
+        <button type="button" class="today-jump-btn hidden" id="jumpTodayBtn">Jump to Today</button>
+      </div>
+
+      <button type="button" class="day-nav-btn" id="nextDayBtn" aria-label="Next Day">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Main Scrollable Viewport -->
+    <main class="main-content" id="mainContent">
+
+      <!-- ==================== TAB 1: DASHBOARD ==================== -->
+      <section class="tab-panel active" id="tab-dashboard" aria-label="Dashboard">
+        <!-- Weight Mission Hero Card -->
+        <div class="card hero-card">
+          <div class="hero-top">
+            <div>
+              <span class="eyebrow-label">30-DAY MASS GOAL</span>
+              <div class="hero-weight-row">
+                <span class="hero-current-weight" id="dashCurrentWeight">46.0</span>
+                <span class="hero-weight-unit">kg</span>
+                <span class="hero-delta-pill" id="dashWeightDeltaPill">+0.0 kg gained</span>
+              </div>
+            </div>
+            <button type="button" class="btn-emerald-sm" id="dashQuickWeightBtn">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Log Weight
+            </button>
+          </div>
+
+          <!-- Progress Track -->
+          <div class="goal-progress-wrap">
+            <div class="goal-progress-labels">
+              <span>Start: <strong id="dashStartWeight">46.0 kg</strong></span>
+              <span class="goal-pct-highlight" id="dashGoalPercent">0% Complete</span>
+              <span>Target: <strong id="dashTargetWeight">50.0 kg</strong></span>
+            </div>
+            <div class="progress-bar-track lg">
+              <div class="progress-bar-fill" id="dashWeightProgressBar" style="width: 0%"></div>
+            </div>
+            <div class="goal-milestones" id="dashMilestones">
+              <span>46kg</span>
+              <span>47kg</span>
+              <span>48kg</span>
+              <span>49kg</span>
+              <span>50kg</span>
+            </div>
+          </div>
+
+          <!-- 4 Metric Stat Boxes -->
+          <div class="hero-stats-grid">
+            <div class="stat-tile">
+              <span class="stat-label">Starting</span>
+              <span class="stat-value" id="statStartWeight">46.0 <small>kg</small></span>
+            </div>
+            <div class="stat-tile highlight">
+              <span class="stat-label">Weight Gained</span>
+              <span class="stat-value emerald" id="statWeightGained">+0.0 <small>kg</small></span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-label">Remaining</span>
+              <span class="stat-value" id="statWeightRemaining">4.0 <small>kg</small></span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-label">Day Counter</span>
+              <span class="stat-value" id="statDayCounter">1 <small>/ 30</small></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Calories & Protein Rings Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Daily Nutrition Intake</h2>
+              <p class="card-subtitle" id="dashNutritionSubtitle">Auto-calculated from your food checklist</p>
+            </div>
+            <button type="button" class="link-btn" data-goto-tab="food">Open Food →</button>
+          </div>
+
+          <div class="macro-rings-grid">
+            <!-- Calories Ring -->
+            <div class="macro-ring-box">
+              <div class="ring-svg-wrap">
+                <svg viewBox="0 0 120 120" class="ring-svg">
+                  <circle class="ring-bg" cx="60" cy="60" r="50" />
+                  <circle class="ring-meter emerald" id="dashCalorieRing" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16" />
+                </svg>
+                <div class="ring-center-text">
+                  <span class="ring-big-num" id="dashCaloriesVal">0</span>
+                  <span class="ring-unit">/ <span id="dashCaloriesTarget">3000</span> kcal</span>
+                </div>
+              </div>
+              <div class="macro-ring-footer">
+                <span class="macro-tag">Calories</span>
+                <span class="macro-remain" id="dashCaloriesRemain">3000 kcal left</span>
+              </div>
+            </div>
+
+            <!-- Protein Ring -->
+            <div class="macro-ring-box">
+              <div class="ring-svg-wrap">
+                <svg viewBox="0 0 120 120" class="ring-svg">
+                  <circle class="ring-bg" cx="60" cy="60" r="50" />
+                  <circle class="ring-meter lime" id="dashProteinRing" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16" />
+                </svg>
+                <div class="ring-center-text">
+                  <span class="ring-big-num" id="dashProteinVal">0</span>
+                  <span class="ring-unit">/ <span id="dashProteinTarget">110</span> g</span>
+                </div>
+              </div>
+              <div class="macro-ring-footer">
+                <span class="macro-tag">Protein</span>
+                <span class="macro-remain" id="dashProteinRemain">110g left</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Daily Action Cards (Food, Water, Workout) -->
+        <div class="quick-cards-grid">
+          <!-- Food Checklist Progress Card -->
+          <div class="card compact-card" data-goto-tab="food" role="button" tabindex="0">
+            <div class="compact-card-top">
+              <div class="compact-icon emerald-bg">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                  <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                  <line x1="6" y1="1" x2="6" y2="4"></line>
+                  <line x1="10" y1="1" x2="10" y2="4"></line>
+                  <line x1="14" y1="1" x2="14" y2="4"></line>
+                </svg>
+              </div>
+              <span class="compact-status" id="dashFoodCountBadge">0 / 9</span>
+            </div>
+            <h3 class="compact-title">Food Checklist</h3>
+            <p class="compact-desc" id="dashFoodSummaryText">Tap to check off meals & eggs</p>
+            <div class="progress-bar-track sm">
+              <div class="progress-bar-fill" id="dashFoodBar" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Workout Progress Card -->
+          <div class="card compact-card" data-goto-tab="workout" role="button" tabindex="0">
+            <div class="compact-card-top">
+              <div class="compact-icon lime-bg">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m6.5 6.5 11 11"></path>
+                  <path d="m21 21-1-1"></path>
+                  <path d="m3 3 1 1"></path>
+                  <path d="m18 22 4-4"></path>
+                  <path d="m2 6 4-4"></path>
+                  <path d="m3 10 7-7"></path>
+                  <path d="m14 21 7-7"></path>
+                </svg>
+              </div>
+              <span class="compact-status" id="dashWorkoutCountBadge">0 / 5</span>
+            </div>
+            <h3 class="compact-title">Daily Workout</h3>
+            <p class="compact-desc" id="dashWorkoutSummaryText">Push-ups, squats, plank & walk</p>
+            <div class="progress-bar-track sm">
+              <div class="progress-bar-fill" id="dashWorkoutBar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Water Quick-Tracker Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="water-title-group">
+              <div class="compact-icon cyan-bg">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="card-title">Hydration Tracker</h2>
+                <p class="card-subtitle"><span id="dashWaterVal">0</span> / <span id="dashWaterTarget">2500</span> ml (<span id="dashWaterPct">0%</span>)</p>
+              </div>
+            </div>
+            <div class="quick-water-btns">
+              <button type="button" class="btn-water-chip" data-water-delta="-250" title="Remove 250 ml">−250</button>
+              <button type="button" class="btn-water-chip primary" data-water-delta="250">+250 ml</button>
+              <button type="button" class="btn-water-chip primary" data-water-delta="500">+500 ml</button>
+            </div>
+          </div>
+          <div class="progress-bar-track water-track">
+            <div class="progress-bar-fill water-fill" id="dashWaterBar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Dashboard Today's Checklist Preview -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Quick Daily Food Check</h2>
+              <p class="card-subtitle">Tap any item to toggle completion</p>
+            </div>
+            <button type="button" class="link-btn" data-goto-tab="food">Edit Quantities →</button>
+          </div>
+          <div class="dash-food-preview" id="dashFoodQuickList"></div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: FOOD & WATER TRACKER ==================== -->
+      <section class="tab-panel" id="tab-food" aria-label="Food and Water Tracker">
+        <!-- Live Macro Summary Sticky Banner -->
+        <div class="card nutrition-banner-card">
+          <div class="nutrition-banner-grid">
+            <div class="nutri-banner-item">
+              <span class="nutri-label">Calories</span>
+              <span class="nutri-val"><strong id="foodTabCalories">0</strong> <small>/ <span id="foodTabCalTarget">3000</span> kcal</small></span>
+              <div class="progress-bar-track xs">
+                <div class="progress-bar-fill" id="foodTabCalBar" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="nutri-banner-item">
+              <span class="nutri-label">Protein</span>
+              <span class="nutri-val"><strong id="foodTabProtein">0</strong> <small>/ <span id="foodTabProtTarget">110</span> g</small></span>
+              <div class="progress-bar-track xs">
+                <div class="progress-bar-fill lime-fill" id="foodTabProtBar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Food Checklist Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Daily Gain Checklist</h2>
+              <p class="card-subtitle">Adjust quantities with − / + to auto-calculate macros</p>
+            </div>
+            <button type="button" class="btn-emerald-sm" id="addCustomFoodBtn">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add Food
+            </button>
+          </div>
+
+          <div class="food-list-container" id="foodChecklistContainer"></div>
+
+          <div class="card-footer-actions">
+            <button type="button" class="btn-ghost-sm" id="checkAllFoodsBtn">Check All</button>
+            <button type="button" class="btn-ghost-sm" id="uncheckAllFoodsBtn">Uncheck All</button>
+            <button type="button" class="btn-ghost-sm" id="resetDefaultFoodsBtn">Restore Defaults</button>
+          </div>
+        </div>
+
+        <!-- Full Water Tracker Card -->
+        <div class="card" id="waterTrackerSection">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Daily Water Tracker</h2>
+              <p class="card-subtitle">Stay hydrated for optimal muscle & weight gain</p>
+            </div>
+            <span class="water-badge" id="waterTabBadge">0 / 2500 ml</span>
+          </div>
+
+          <div class="water-visual-panel">
+            <div class="water-tank">
+              <div class="water-tank-fill" id="waterTankFill" style="height: 0%"></div>
+              <div class="water-tank-overlay">
+                <span class="water-big-number" id="waterBigNumber">0 <small>ml</small></span>
+                <span class="water-sub-status" id="waterSubStatus">0% of 2500 ml goal</span>
+              </div>
+            </div>
+
+            <div class="water-controls-col">
+              <p class="water-helper-label">Tap a glass (250 ml each):</p>
+              <div class="water-glasses-grid" id="waterGlassesGrid"></div>
+              <div class="water-action-buttons">
+                <button type="button" class="btn-water-action" data-water-delta="-250">−250 ml</button>
+                <button type="button" class="btn-water-action add" data-water-delta="250">+250 ml</button>
+                <button type="button" class="btn-water-action add" data-water-delta="500">+500 ml</button>
+              </div>
+              <div class="custom-water-row">
+                <input type="number" id="customWaterInput" class="input-dark sm" placeholder="Custom ml (e.g. 350)" min="50" max="3000" step="50" />
+                <button type="button" class="btn-secondary-sm" id="addCustomWaterBtn">Add ml</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: WORKOUT TRACKER ==================== -->
+      <section class="tab-panel" id="tab-workout" aria-label="Workout Tracker">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Strength & Mass Workout</h2>
+              <p class="card-subtitle" id="workoutProgressSubtitle">0 of 5 exercises completed today</p>
+            </div>
+            <button type="button" class="btn-emerald-sm" id="addCustomWorkoutBtn">+ Exercise</button>
+          </div>
+
+          <div class="progress-bar-track lg" style="margin-bottom: 16px;">
+            <div class="progress-bar-fill" id="workoutProgressBar" style="width: 0%"></div>
+          </div>
+
+          <!-- Workout List -->
+          <div class="workout-list-container" id="workoutListContainer"></div>
+
+          <div class="card-footer-actions">
+            <button type="button" class="btn-ghost-sm" id="checkAllWorkoutsBtn">Complete All</button>
+            <button type="button" class="btn-ghost-sm" id="restDayToggleBtn">Mark as Rest Day</button>
+          </div>
+        </div>
+
+        <!-- Interactive Plank Stopwatch / Timer Card -->
+        <div class="card plank-timer-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Live Plank & Hold Timer</h2>
+              <p class="card-subtitle">Auto-completes Plank when target duration is reached</p>
+            </div>
+            <span class="timer-target-pill" id="plankTargetPill">Target: 60s</span>
+          </div>
+
+          <div class="plank-timer-body">
+            <div class="timer-display" id="plankTimerDisplay">00:00.0</div>
+            <div class="timer-btn-row">
+              <button type="button" class="btn-emerald" id="plankStartPauseBtn">Start Timer</button>
+              <button type="button" class="btn-secondary" id="plankResetBtn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workout Notes Card -->
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom: 8px;">Daily Training Notes</h3>
+          <textarea id="workoutNotesInput" class="input-dark textarea" rows="2" placeholder="Record progressive overload, form notes, or energy level..."></textarea>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: WEIGHT TRACKER ==================== -->
+      <section class="tab-panel" id="tab-weight" aria-label="Weight Tracker">
+        <!-- Weight Entry Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Daily Body Weight Entry</h2>
+              <p class="card-subtitle" id="weightEntryDayLabel">Logging for Day 1</p>
+            </div>
+            <span class="weight-status-tag" id="weightLoggedStatusTag">Not logged yet</span>
+          </div>
+
+          <div class="weight-stepper-box">
+            <button type="button" class="weight-step-btn" id="weightMinusBtn" aria-label="Decrease 0.1 kg">−0.1</button>
+            <div class="weight-input-wrap">
+              <input type="number" id="dailyWeightInput" class="weight-big-input" step="0.1" min="30" max="150" value="46.0" aria-label="Body weight in kilograms" />
+              <span class="weight-input-unit">kg</span>
+            </div>
+            <button type="button" class="weight-step-btn" id="weightPlusBtn" aria-label="Increase 0.1 kg">+0.1</button>
+          </div>
+
+          <div class="weight-save-row">
+            <button type="button" class="btn-emerald full-width" id="saveDailyWeightBtn">Save Weight for Active Day</button>
+            <button type="button" class="btn-ghost-sm" id="clearDailyWeightBtn" title="Clear weight entry for this day">Clear</button>
+          </div>
+        </div>
+
+        <!-- Weight Progress Chart Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">30-Day Weight Trajectory</h2>
+              <p class="card-subtitle">Actual weight (green) vs Ideal 46→50 kg pace (dashed)</p>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-item"><i class="dot emerald"></i> Actual</span>
+              <span class="legend-item"><i class="dot dashed"></i> Target Pace</span>
+            </div>
+          </div>
+
+          <div class="chart-wrapper" id="weightChartWrapper">
+            <svg id="weightChartSvg" viewBox="0 0 600 260" preserveAspectRatio="none" class="weight-chart-svg"></svg>
+            <div class="chart-tooltip hidden" id="weightChartTooltip"></div>
+          </div>
+        </div>
+
+        <!-- Weekly Averages Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Weekly Averages & Gain Rate</h2>
+              <p class="card-subtitle">Track consistency across all 4+ weeks</p>
+            </div>
+          </div>
+          <div class="weekly-averages-list" id="weeklyAveragesContainer"></div>
+        </div>
+
+        <!-- Weight Log History Table -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">All Recorded Weigh-Ins</h2>
+              <p class="card-subtitle">Tap any entry to jump to that day</p>
+            </div>
+          </div>
+          <div class="weight-log-list" id="weightLogListContainer"></div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 5: 30-DAY HISTORY ==================== -->
+      <section class="tab-panel" id="tab-history" aria-label="30-Day Calendar History">
+        <!-- 30-Day Challenge Overview Stats -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">30-Day Challenge Calendar</h2>
+              <p class="card-subtitle">Tap any day (1–30) to inspect or edit full records</p>
+            </div>
+            <div class="calendar-legend">
+              <span class="cal-leg-item"><i class="cal-dot food"></i>Food</span>
+              <span class="cal-leg-item"><i class="cal-dot water"></i>Water</span>
+              <span class="cal-leg-item"><i class="cal-dot workout"></i>Workout</span>
+            </div>
+          </div>
+
+          <!-- 30-Day Grid -->
+          <div class="calendar-30-grid" id="calendar30Grid"></div>
+        </div>
+
+        <!-- Selected Day Full Detail Inspector -->
+        <div class="card inspector-card" id="historyDayInspectorCard">
+          <div class="card-header">
+            <div>
+              <span class="eyebrow-label" id="inspectorDayEyebrow">SELECTED DAY RECORD</span>
+              <h2 class="card-title" id="inspectorDayTitle">Day 1 — Full Summary</h2>
+            </div>
+            <button type="button" class="btn-emerald-sm" id="inspectorEditInTrackerBtn">Open Day in Tracker</button>
+          </div>
+
+          <div class="inspector-metrics-grid" id="inspectorMetricsGrid"></div>
+
+          <div class="inspector-columns">
+            <div class="inspector-section">
+              <h3 class="inspector-sec-title">Food Checklist (Tap to Toggle)</h3>
+              <div class="inspector-list" id="inspectorFoodList"></div>
+            </div>
+
+            <div class="inspector-section">
+              <h3 class="inspector-sec-title">Workout Record (Tap to Toggle)</h3>
+              <div class="inspector-list" id="inspectorWorkoutList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Mobile Navigation -->
+    <nav class="bottom-nav" aria-label="Primary Bottom Navigation">
+      <button type="button" class="nav-tab active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+          <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+          <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+        </svg>
+        <span>Dashboard</span>
+      </button>
+
+      <button type="button" class="nav-tab" data-tab="food">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+          <line x1="6" y1="1" x2="6" y2="4"></line>
+          <line x1="10" y1="1" x2="10" y2="4"></line>
+          <line x1="14" y1="1" x2="14" y2="4"></line>
+        </svg>
+        <span>Food & Water</span>
+      </button>
+
+      <button type="button" class="nav-tab" data-tab="workout">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m6.5 6.5 11 11"></path>
+          <path d="m21 21-1-1"></path>
+          <path d="m3 3 1 1"></path>
+          <path d="m18 22 4-4"></path>
+          <path d="m2 6 4-4"></path>
+          <path d="m3 10 7-7"></path>
+          <path d="m14 21 7-7"></path>
+        </svg>
+        <span>Workout</span>
+      </button>
+
+      <button type="button" class="nav-tab" data-tab="weight">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>Weight</span>
+      </button>
+
+      <button type="button" class="nav-tab" data-tab="history">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span>30-Day History</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== MODAL: ADD / EDIT FOOD ITEM ==================== -->
+  <div class="modal-backdrop hidden" id="foodModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="foodModalTitle">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title" id="foodModalTitle">Add Custom Food</h3>
+        <button type="button" class="icon-btn sm" id="closeFoodModalBtn" aria-label="Close">✕</button>
+      </div>
+      <form id="foodItemForm" class="modal-form">
+        <input type="hidden" id="editFoodIdInput" />
+        <div class="form-group">
+          <label for="foodNameInput">Food Name</label>
+          <input type="text" id="foodNameInput" class="input-dark" placeholder="e.g. Oats Shake or Almonds" required />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="foodQtyInput">Quantity</label>
+            <input type="number" id="foodQtyInput" class="input-dark" step="any" min="0.1" value="1" required />
+          </div>
+          <div class="form-group">
+            <label for="foodUnitInput">Unit Label</label>
+            <input type="text" id="foodUnitInput" class="input-dark" placeholder="e.g. serving, tbsp, ml, pcs" value="serving" required />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="foodCalPerUnitInput">Calories per 1 Unit (kcal)</label>
+            <input type="number" id="foodCalPerUnitInput" class="input-dark" step="any" min="0" value="200" required />
+          </div>
+          <div class="form-group">
+            <label for="foodProtPerUnitInput">Protein per 1 Unit (g)</label>
+            <input type="number" id="foodProtPerUnitInput" class="input-dark" step="any" min="0" value="10" required />
+          </div>
+        </div>
+        <div class="live-calc-preview" id="foodModalCalcPreview">
+          Total for quantity: <strong>200 kcal</strong> • <strong>10.0 g protein</strong>
+        </div>
+        <div class="form-group checkbox-inline" id="applyAllDaysWrap">
+          <input type="checkbox" id="applyFoodToFutureDays" />
+          <label for="applyFoodToFutureDays">Also add to unlogged future days</label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-danger-ghost hidden" id="deleteFoodItemBtn">Delete Item</button>
+          <div style="flex:1"></div>
+          <button type="button" class="btn-secondary" id="cancelFoodModalBtn">Cancel</button>
+          <button type="submit" class="btn-emerald">Save Food</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADD / EDIT WORKOUT ==================== -->
+  <div class="modal-backdrop hidden" id="workoutModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workoutModalTitle">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title" id="workoutModalTitle">Add Custom Exercise</h3>
+        <button type="button" class="icon-btn sm" id="closeWorkoutModalBtn" aria-label="Close">✕</button>
+      </div>
+      <form id="workoutItemForm" class="modal-form">
+        <input type="hidden" id="editWorkoutIdInput" />
+        <div class="form-group">
+          <label for="workoutNameInput">Exercise Name</label>
+          <input type="text" id="workoutNameInput" class="input-dark" placeholder="e.g. Pull-ups, Dumbbell Curl" required />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="workoutTargetInput">Target Amount</label>
+            <input type="number" id="workoutTargetInput" class="input-dark" step="1" min="1" value="20" required />
+          </div>
+          <div class="form-group">
+            <label for="workoutUnitInput">Unit</label>
+            <input type="text" id="workoutUnitInput" class="input-dark" placeholder="reps, sec, mins" value="reps" required />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelWorkoutModalBtn">Cancel</button>
+          <button type="submit" class="btn-emerald">Save Exercise</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SETTINGS, GOALS & JSON BACKUP ==================== -->
+  <div class="modal-backdrop hidden" id="settingsModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="modal-sheet large">
+      <div class="modal-header">
+        <h3 class="modal-title" id="settingsModalTitle">Goals, Backup & Offline Storage</h3>
+        <button type="button" class="icon-btn sm" id="closeSettingsModalBtn" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <form id="goalSettingsForm" class="modal-form">
+          <h4 class="section-subhead">30-Day Challenge Targets</h4>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="setStartWeight">Starting Weight (kg)</label>
+              <input type="number" id="setStartWeight" class="input-dark" step="0.1" min="25" max="200" value="46.0" required />
+            </div>
+            <div class="form-group">
+              <label for="setTargetWeight">Target Weight (kg)</label>
+              <input type="number" id="setTargetWeight" class="input-dark" step="0.1" min="25" max="200" value="50.0" required />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="setCalorieGoal">Daily Calorie Goal (kcal)</label>
+              <input type="number" id="setCalorieGoal" class="input-dark" step="50" min="1000" max="8000" value="3000" required />
+            </div>
+            <div class="form-group">
+              <label for="setProteinGoal">Daily Protein Goal (g)</label>
+              <input type="number" id="setProteinGoal" class="input-dark" step="5" min="30" max="400" value="110" required />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="setWaterGoal">Daily Water Goal (ml)</label>
+              <input type="number" id="setWaterGoal" class="input-dark" step="100" min="500" max="6000" value="2500" required />
+            </div>
+            <div class="form-group">
+              <label for="setStartDate">Day 1 Start Date</label>
+              <input type="date" id="setStartDate" class="input-dark" required />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-emerald full-width" style="margin-top: 6px;">Save Goal Settings</button>
+        </form>
+
+        <hr class="modal-divider" />
+
+        <!-- Backup & Restore (JSON Export / Import) -->
+        <div class="backup-section">
+          <h4 class="section-subhead">LocalStorage JSON Backup & Restore</h4>
+          <p class="backup-desc">All 30 days are saved automatically in your browser's LocalStorage. Export a JSON backup anytime or import one to restore your progress.</p>
+
+          <div class="backup-btn-grid">
+            <button type="button" class="btn-emerald" id="exportJsonBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download JSON Backup
+            </button>
+
+            <label for="importJsonFileInput" class="btn-secondary file-label-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              Import JSON File
+              <input type="file" id="importJsonFileInput" accept=".json,application/json" class="hidden" />
+            </label>
+          </div>
+
+          <details class="raw-json-details">
+            <summary>Copy / Paste Raw JSON Backup</summary>
+            <textarea id="rawJsonTextarea" class="input-dark textarea mono" rows="4" placeholder="Paste GAIN30 JSON backup here..."></textarea>
+            <div class="raw-json-actions">
+              <button type="button" class="btn-ghost-sm" id="copyRawJsonBtn">Copy Current JSON</button>
+              <button type="button" class="btn-emerald-sm" id="restoreRawJsonBtn">Restore from Text</button>
+            </div>
+          </details>
+        </div>
+
+        <hr class="modal-divider" />
+
+        <!-- Android PWA Install Instructions -->
+        <div class="pwa-info-box">
+          <h4 class="section-subhead">Install on Android (Offline PWA)</h4>
+          <p class="backup-desc">In Chrome on Android, tap the <strong>Install</strong> button in the header or open Chrome menu (⋮) → <strong>"Add to Home screen" / "Install app"</strong>. Works 100% offline.</p>
+        </div>
+
+        <hr class="modal-divider" />
+
+        <div class="danger-zone">
+          <button type="button" class="btn-danger-outline full-width" id="factoryResetBtn">Reset All 30-Day Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast hidden" id="appToast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
